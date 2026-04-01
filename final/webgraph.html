@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Graph</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+
+<body>
+
+<!-- 🔝 Navbar -->
+<div class="navbar">
+  <h2>Graphify</h2>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="social.html">Social</a>
+    <a href="#">Web</a>
+    <a href="map.html">Map</a>
+  </div>
+</div>
+
+<!-- 🎯 Hero -->
+<section class="hero small-hero">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+
+  <div class="hero-content">
+    <h1>Web Graph</h1>
+    <p>Connect web pages and visualize links</p>
+  </div>
+</section>
+
+<!-- 🔧 INPUT SECTION -->
+<div class="input-section">
+  <div class="input-card">
+
+    <h3>Add Link</h3>
+
+    <select id="from">
+      <option value="1">Home</option>
+      <option value="2">Social</option>
+      <option value="3">Web</option>
+      <option value="4"><Map></Map></option>
+    </select>
+
+    <span style="margin: 0 10px;">→</span>
+
+    <select id="to">
+      <option value="1">Home</option>
+      <option value="2">Social</option>
+      <option value="3">Web</option>
+      <option value="4"><Map></Map></option>
+    </select>
+
+    <br><br>
+
+    <button class="btn" onclick="addLink()">Add Link</button>
+    <button class="btn reset-btn" onclick="resetGraph()">Reset</button>
+
+  </div>
+</div>
+
+<!-- 📊 GRAPH -->
+<div class="graph-container">
+  <div class="graph-card">
+    <h3>Website Structure</h3>
+    <div id="network"></div>
+  </div>
+</div>
+
+<script>
+
+// NODES
+const nodes = new vis.DataSet([
+  { id: 1, label: "Home" },
+  { id: 2, label: "Social" },
+  { id: 3, label: "web" },
+  { id: 4, label: "Map" }
+]);
+
+// LOAD SAVED LINKS
+let edgesArray = JSON.parse(localStorage.getItem("webLinks")) || [];
+
+let edges = new vis.DataSet(edgesArray);
+
+var container = document.getElementById("network");
+
+// DRAW GRAPH
+function drawGraph() {
+
+  let options = {
+    nodes: {
+      shape: "dot",
+      size: 22,
+      font: { size: 16, color: "#ffffff" },
+      color: {
+        background: "#ff416c",
+        border: "#ffffff"
+      }
+    },
+    edges: {
+      arrows: "to",
+      color: "#ffffff"
+    }
+  };
+
+  new vis.Network(container, { nodes, edges }, options);
+}
+
+// ADD LINK
+function addLink() {
+
+  let from = parseInt(document.getElementById("from").value);
+  let to = parseInt(document.getElementById("to").value);
+
+  if (from === to) {
+    alert("Cannot link same page!");
+    return;
+  }
+
+  edgesArray.push({ from, to });
+
+  localStorage.setItem("webLinks", JSON.stringify(edgesArray));
+
+  edges = new vis.DataSet(edgesArray);
+
+  drawGraph();
+}
+
+// RESET GRAPH
+function resetGraph() {
+
+  edgesArray = [];
+  localStorage.removeItem("webLinks");
+
+  edges = new vis.DataSet([]);
+
+  drawGraph();
+}
+
+// INIT
+drawGraph();
+
+</script>
+
+</body>
+</html>
