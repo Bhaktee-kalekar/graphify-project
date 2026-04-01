@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Social Graph</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+
+<body>
+
+<!-- 🔝 Navbar -->
+<div class="navbar">
+  <h2>Graphify</h2>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="#">Social</a>
+    <a href="webgraph.html">Web</a>
+    <a href="map.html">Map</a>
+  </div>
+</div>
+
+<!-- 🎯 Hero -->
+<section class="hero small-hero">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+
+  <div class="hero-content">
+    <h1>Build Your Network</h1>
+    <p>Follow users and see your graph grow</p>
+  </div>
+</section>
+
+<!-- 👥 USERS GRID -->
+<div class="users-grid" id="usersGrid"></div>
+
+<!-- 📊 GRAPH -->
+<div class="graph-container">
+  <div class="graph-card">
+    <h3>Your Connections</h3>
+    <div id="network"></div>
+  </div>
+</div>
+
+<script>
+
+// USERS DATA
+const users = [
+  { id: 2, name: "Anushka" },
+  { id: 3, name: "Monika" },
+  { id: 4, name: "Srushti" },
+  { id: 5, name: "Shravani" },
+  { id: 6, name: "Meghraj" },
+  { id: 7, name: "Swaraj" },
+  { id: 8, name: "Sanket" },
+  { id: 9, name: "Yash" },
+  { id: 10, name: "Sakshi" },
+  { id: 11, name: "Neha" }
+];
+
+// LOAD FOLLOW STATE
+let followed = JSON.parse(localStorage.getItem("followed")) || [];
+
+// RENDER USERS
+const grid = document.getElementById("usersGrid");
+
+function renderUsers() {
+  grid.innerHTML = "";
+
+  users.forEach(user => {
+    let isFollowed = followed.includes(user.id);
+
+    grid.innerHTML += `
+      <div class="user-card">
+        <div class="avatar">${user.name[0]}</div>
+        <h4>${user.name}</h4>
+        <button class="follow-btn ${isFollowed ? 'active' : ''}"
+          onclick="toggleFollow(${user.id})">
+          ${isFollowed ? 'Following' : 'Follow'}
+        </button>
+      </div>
+    `;
+  });
+}
+
+// FOLLOW / UNFOLLOW
+function toggleFollow(id) {
+
+  if (followed.includes(id)) {
+    followed = followed.filter(x => x !== id);
+  } else {
+    followed.push(id);
+  }
+
+  localStorage.setItem("followed", JSON.stringify(followed));
+
+  renderUsers();
+  drawGraph();
+}
+
+// GRAPH
+var container = document.getElementById("network");
+
+function drawGraph() {
+
+  let nodes = new vis.DataSet([
+    { id: 1, label: "You" },
+    ...users.map(u => ({ id: u.id, label: u.name }))
+  ]);
+
+  let edges = new vis.DataSet(
+    followed.map(id => ({ from: 1, to: id }))
+  );
+
+  let options = {
+    nodes: {
+      shape: "dot",
+      size: 22,
+      font: { size: 16, color: "#ffffff" },
+      color: {
+        background: "#2563eb",
+        border: "#ffffff"
+      }
+    },
+    edges: {
+      arrows: "to",
+      color: "#ffffff"
+    },
+    physics: {
+      enabled: true
+    }
+  };
+
+  new vis.Network(container, { nodes, edges }, options);
+}
+
+// INIT
+renderUsers();
+drawGraph();
+
+</script>
+
+</body>
+</html>
